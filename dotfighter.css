@@ -1,0 +1,29 @@
+#content {
+    margin : 0 auto;
+    width :600px;
+    height : 600px;
+    background-color: black;
+    color :grey;
+    text-align: center;
+
+}
+
+#title {
+    padding-top : 200px ;
+    font-size: 48px;
+    color : gray;
+}
+
+#press-enter {
+    padding:100px;
+    font-size: 24px;
+    color : gray;
+}
+
+#field {
+    width :600px;
+    height : 600px;
+}
+
+
+
