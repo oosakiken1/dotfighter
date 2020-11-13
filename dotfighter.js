@@ -2,7 +2,7 @@ const cd = document.getElementById('content');
 var ped;        // press enter div
 var si;         // setInterval
 var degree = 0; // 回転用
-var size = 5;  // dotのサイズ
+var size = 10;  // dotのサイズ
 var mode;       // 画面のモード
 var ctx;        // canvas.getContext
 var keyLeft = false;
@@ -53,7 +53,7 @@ document.body.addEventListener('keyup',
 //タイトル画面の開始処理
 function setTitle() {
     const html =
-        '<div id="title">CovidFighter</div>'
+        '<div id="title">DotFighter</div>'
         + '<div id="press-enter" >Press Enter</div>'
         + '<div id="explanation" >If u move the Fighter , u use Left Key and Right Key and Z key.</div>';
     cd.innerHTML = html;
@@ -298,7 +298,7 @@ function intervalGame() {
 //ゲームオーバー画面の開始処理
 function setGameOver() {
     const html =
-        '<div id="title">You lose Covid.</div>' +
+        '<div id="title">You lose.</div>' +
         `<p>Your level is ${level}</p>`;
     cd.innerHTML = html;
     ped = document.getElementById('title');
