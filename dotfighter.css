@@ -1,11 +1,13 @@
-#content {
+body {
     margin : 0 auto;
     width :600px;
+}
+
+#content {
     height : 600px;
     background-color: black;
     color :grey;
     text-align: center;
-
 }
 
 #title {
@@ -24,6 +26,3 @@
     width :600px;
     height : 600px;
 }
-
-
-
