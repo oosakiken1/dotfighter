@@ -48,7 +48,7 @@ document.body.addEventListener('keydown',
             keyRight = true;
         } else if (event.key === 'ArrowLeft') {
             keyLeft = true;
-        } else if (event.key === 'z') {
+        } else if (event.key === "z" || event.key === " ") {
             keyZ = true;
         }
     }
@@ -65,7 +65,7 @@ document.body.addEventListener('keyup',
             keyRight = false;
         } else if (event.key === 'ArrowLeft') {
             keyLeft = false;
-        } else if (event.key === 'z') {
+        } else if (event.key === "z" || event.key === " ") {
             keyZ = false;
         }
     }
@@ -80,7 +80,7 @@ function setTitle() {
     const html =
         '<div id="title">DotFighter</div>'
         + '<div id="press-enter" >Press Enter</div>'
-        + '<div id="explanation" >If u move the Fighter , u use Left Key and Right Key and Z key.</div>';
+        + '<div id="explanation" >you move the DotFighter , and you destory blue dots.</div>';
     cd.innerHTML = html;
 
 
@@ -421,7 +421,7 @@ function intervalGame() {
         } else {
 
             if (count < 150) {
-                ctx.fillText(`You destroy blue dot.`, 180, 300);  
+                ctx.fillText(`Blue dots come here.`, 180, 300);  
             } else {
                 ctx.fillText(`Good Luck♡`, 240, 300);  
             }
