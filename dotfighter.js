@@ -80,7 +80,7 @@ function setTitle() {
     const html =
         '<div id="title">DotFighter</div>'
         + '<div id="press-enter" >Press Enter</div>'
-        + '<div id="explanation" >you move the DotFighter , and you destory blue dots.</div>';
+        + '<div id="explanation" >You move the Fighter , and you destory blue dots.</div>';
     cd.innerHTML = html;
 
 
@@ -421,9 +421,9 @@ function intervalGame() {
         } else {
 
             if (count < 150) {
-                ctx.fillText(`Blue dots come here.`, 180, 300);  
+                ctx.fillText(`COVID come here.`, 300-16*6, 300);  
             } else {
-                ctx.fillText(`Good Luck♡`, 240, 300);  
+                ctx.fillText(`Good Luck♡`, 300-10*6, 300);  
             }
 
             myDot.move();
