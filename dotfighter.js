@@ -80,7 +80,7 @@ function setTitle() {
     const html =
         '<div id="title">DotFighter</div>'
         + '<div id="press-enter" >Press Enter</div>'
-        + '<div id="explanation" >You move the Fighter , and you destory blue dots.</div>';
+        + '<div id="explanation" >You move the Fighter , and you destroy blue dots.</div>';
     cd.innerHTML = html;
 
 
