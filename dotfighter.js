@@ -1,5 +1,12 @@
 const cd = document.getElementById('content');
 const td = document.getElementById('tweet-area');
+const audioShoot = document.getElementById('audio-shoot');
+const audioCrash = document.getElementById('audio-crash');
+const audioMiss = document.getElementById('audio-miss');
+const audioGameOver = document.getElementById('audio-gameover');
+const audioGameStart = document.getElementById('audio-gamestart');
+
+
 
 var ped;        // press enter div
 var si;         // setInterval
@@ -120,6 +127,7 @@ function intervalTitle() {
     if (keyEnter) {
         clearContent();
         setGame();
+        audioGameStart.play();
     }
 }
 
@@ -212,8 +220,12 @@ var myDot = {
             this.inCrash = true;
             this.wait = 200;
             mode = "crash";
+            audioGameOver.play();
 
+        } else {
+            audioMiss.play();
         }
+
     }
 }
 
@@ -234,6 +246,7 @@ var sDot = {
     fire: function (x, y) {
 
         if (!this.enable) {
+            audioShoot.play();
             this.enable = true;
             this.x = x;
             this.y = y;
@@ -333,6 +346,7 @@ var eDot = {
 
     //撃墜処理
     crash: function () {
+        audioCrash.play();
         this.inCrash = true;
         this.enable = false;
         level++;
