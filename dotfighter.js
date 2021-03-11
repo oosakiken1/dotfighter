@@ -2,9 +2,9 @@ const cd = document.getElementById('content');
 const td = document.getElementById('tweet-area');
 const audioShoot = document.getElementById('audio-shoot');
 const audioCrash = document.getElementById('audio-crash');
-const audioMiss = document.getElementById('audio-miss');
-const audioGameOver = document.getElementById('audio-gameover');
-const audioGameStart = document.getElementById('audio-gamestart');
+// const audioMiss = document.getElementById('audio-miss');
+// const audioGameOver = document.getElementById('audio-gameover');
+// const audioGameStart = document.getElementById('audio-gamestart');
 
 
 
@@ -127,7 +127,7 @@ function intervalTitle() {
     if (keyEnter) {
         clearContent();
         setGame();
-        audioGameStart.play();
+        // audioGameStart.play();
     }
 }
 
@@ -220,10 +220,10 @@ var myDot = {
             this.inCrash = true;
             this.wait = 200;
             mode = "crash";
-            audioGameOver.play();
+            // audioGameOver.play();
 
         } else {
-            audioMiss.play();
+            // audioMiss.play();
         }
 
     }
@@ -435,7 +435,7 @@ function intervalGame() {
         } else {
 
             if (count < 150) {
-                ctx.fillText(`COVID come here.`, 300-16*6, 300);  
+                ctx.fillText(`Invaders come here.`, 300-19*6, 300);  
             } else {
                 ctx.fillText(`Good Luck♡`, 300-10*6, 300);  
             }
