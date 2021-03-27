@@ -1,17 +1,22 @@
 body {
     margin : 0 auto;
-    width :600px;
+    width :640px;
 }
 
+#manual {
+    text-align: center;
+}
+
+
 #content {
-    height : 600px;
+    height : 640px;
     background-color: black;
     color :grey;
     text-align: center;
 }
 
 #title {
-    padding-top : 200px ;
+    padding-top : 180px ;
     font-size: 48px;
     color : gray;
 }
@@ -23,6 +28,9 @@ body {
 }
 
 #field {
-    width :600px;
-    height : 600px;
+    width :640px;
+    height : 640px;
 }
+
+
+

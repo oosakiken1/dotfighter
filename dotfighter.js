@@ -1,29 +1,36 @@
+'use strict';
 const cd = document.getElementById('content');
 const td = document.getElementById('tweet-area');
 const audioShoot = document.getElementById('audio-shoot');
 const audioCrash = document.getElementById('audio-crash');
+audioShoot.volume = 0.05;
+audioCrash.volume = 0.05;
+
 // const audioMiss = document.getElementById('audio-miss');
 // const audioGameOver = document.getElementById('audio-gameover');
 // const audioGameStart = document.getElementById('audio-gamestart');
 
-
-
-var ped;        // press enter div
-var si;         // setInterval
-var degree = 0; // 回転用
-var size = 10;  // dotのサイズ      px     default 10  
-var gameSpeed = 20; // ゲームスピード   nano秒  default 20
-var mode;       // 画面のモード
-var ctx;        // canvas.getContext
-var keyLeft = false;
-var keyRight = false;
-var keyZ = false;
-var keyEnter = false;
-var reserve;    // 残機
-var level;      // レベル
-var speed;      // 背景速度
-var count;      // 汎用カウンタ
-var lastLevel = 0;　//最後のLevel
+let ped;        // press enter div
+let si;         // setInterval
+let degree = 0; // 回転用
+const sizeX = 32;  // dotのサイズ      px     default 10
+const sizeY = 32;  // dotのサイズ      px     default 10
+const maxX = 640;
+const maxY = 640;
+const patternX = [32,0,32,64];
+let gameSpeed = 20; // ゲームスピード   nano秒  default 20
+let mode;       // 画面のモード
+let ctx;        // canvas.getContext
+let keyLeft = false;
+let keyRight = false;
+let keyZ = false;
+let keyEnter = false;
+let reserve;    // 残機
+let level;      // レベル
+let speed;      // 背景速度
+let count;      // 汎用カウンタ
+let lastLevel = 0;　//最後のLevel
+let yourLevel = localStorage.getItem('yourLevel') || 0;
 
 /**
  * 指定した要素の子どもを全て削除する
@@ -40,7 +47,7 @@ function removeAllChild(element){
  */
 function clearContent() {
     clearInterval(si);
-    var html = "";
+    const html = "";
     cd.innerHTML = html;
 }
 
@@ -85,11 +92,11 @@ function setTitle() {
     //タイトル画面の設定
     mode = 'title';
     const html =
-        '<div id="title">DotFighter</div>'
+        `<p style = "text-align:left;">Your level ${yourLevel}</p>`
+        + '<div id="title">DotFighter</div>'
         + '<div id="press-enter" >Press Enter</div>'
         + '<div id="explanation" >You move the Fighter , and you destroy blue dots.</div>';
     cd.innerHTML = html;
-
 
     //twitterボタンの作成
     const anchor = document.createElement('a');
@@ -98,7 +105,7 @@ function setTitle() {
         encodeURIComponent("DotFighter")+
         '&ref_src=twsrc%5Etfw';
 
-    var result = '私のDotFighterLevelは'+lastLevel+'です。 https://oosakiken1.github.io/dotfighter/dotfighter.html'
+    const result = '私のDotFighterLevelは'+lastLevel+'です。 https://oosakiken1.github.io/dotfighter/dotfighter.html'
     anchor.setAttribute('href',hrefValue);
     anchor.className = 'twitter-hashtag-button';
     anchor.setAttribute('data-text',result);
@@ -137,7 +144,7 @@ function intervalTitle() {
 function setGame() {
     //ゲーム画面の設定
     mode = 'intro';
-    const html = '<canvas id="field" width="600px" height="600px"></canvas>';
+    const html = `<canvas id="field" width="${maxX}px" height="${maxY}px"></canvas>`;
     cd.innerHTML = html;
 
     const canvas = document.getElementById('field');
@@ -165,48 +172,48 @@ var myDot = {
     x: 0,
     y: 550,
     wait: 0,
-    enable: false,
-    inCrash:false,
+    isEnable: false,
+    isCrash:false,
+    img : null,
 
     //クリア処理
     clear: function () {
-        this.x = 300;
-        this.inCrash = false;
+        this.x = maxX/2;
+        this.isCrash = false;
     },
 
     //画面表示
     display: function () {
-        if (!this.inCrash){
-            ctx.fillStyle = 'gray';
-        } else {
+        if (this.isCrash){
             ctx.fillStyle = `rgb(${255*(this.wait/200)},0,0)`;
+            ctx.fillRect(this.x, this.y, sizeX, sizeY);
         }
-        ctx.fillRect(this.x, this.y, size, size);
+        ctx.drawImage(this.img,patternX[Math.floor(count/16)%4],96,32,32,this.x, this.y, sizeX, sizeY);
     },
 
     //操作処理
     move: function () {
         if (keyLeft) {
-            this.x -= size;
+            this.x -= sizeX / 2;
         }
         if (keyRight) {
-            this.x += size;
+            this.x += sizeX / 2;
         }
         if (this.x < 0) {
             this.x = 0;
-        } else if (this.x >= 600) {
-            this.x = 600 - size;
+        } else if (this.x >= maxX - sizeX) {
+            this.x = maxX - sizeX;
         }
         if (keyZ) {
             sDot.fire(this.x, this.y);
         }
 
-        if (this.inCrash) {
+        if (this.isCrash) {
             this.wait --;
             if (this.wait >0 ){
                 speed = speed * 0.95;
             } else {
-                this.inCrash = false;
+                this.isCrash = false;
                 mode = "gameover";
             }
         }
@@ -217,7 +224,7 @@ var myDot = {
         reserve--;
 
         if (reserve <= 0) {
-            this.inCrash = true;
+            this.isCrash = true;
             this.wait = 200;
             mode = "crash";
             // audioGameOver.play();
@@ -235,19 +242,20 @@ var myDot = {
 var sDot = {
     x: 0,
     y: 0,
-    enable: false,
+    isEnable: false,
+    img : null,
 
     //クリア処理
     clear: function () {
-        this.enable = false;
+        this.isEnable = false;
     },
 
     //発射処理
     fire: function (x, y) {
 
-        if (!this.enable) {
+        if (!this.isEnable) {
             audioShoot.play();
-            this.enable = true;
+            this.isEnable = true;
             this.x = x;
             this.y = y;
         }
@@ -255,19 +263,20 @@ var sDot = {
 
     //表示処理
     display: function () {
-        if (this.enable) {
+        if (this.isEnable) {
             ctx.fillStyle = 'white';
-            ctx.fillRect(this.x, this.y, size, size);
+            // ctx.fillRect(this.x, this.y, sizeX, sizeY);
+            ctx.drawImage(this.img,patternX[Math.floor(count/16)%4],96,32,32,this.x, this.y, sizeX, sizeY);
         }
     },
 
     //移動処理
     move: function () {
-        if (this.enable) {
+        if (this.isEnable) {     
             this.x = myDot.x;
-            this.y -= size;
+            this.y -= sizeY / 4;
             if (this.y < 0) {
-                this.enable = false;
+                this.isEnable = false;
             }
         }
     },
@@ -284,61 +293,65 @@ var eDot = {
     speedX: 0,
     speedY: 0,
     wait :40,
-    enable: false,
-    inCrash :false,
+    
+    isEnable: false,
+    isCrash :false,
+    img : null,
 
     //クリア処理
     clear: function() {
-        this.inCrash = false;
-        this.enable = false;
+        this.isCrash = false;
+        this.isEnable = false;
         this.wait = 40;
     },
 
     //出現処理
     create: function () {
-        if ((!this.enable) && (!this.inCrash)) {
+        if ((!this.isEnable) && (!this.isCrash)) {
             if (this.wait >0 ){
                 this.wait --;
             } else {
-                this.enable = true;
+                this.isEnable = true;
                 this.y = 0;
-                this.x = parseInt(Math.random() * (600 / size)) * size;
+                this.x = parseInt(Math.random() * (maxX / sizeX)) * sizeX;
                 this.speedY = level;
-                this.inCrash = false;
+                this.isCrash = false;
             }
         }
     },
 
     //表示処理
     display: function () {
-        if (this.enable) {
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(this.x, this.y, size, size);
+        if (this.isEnable) {
+            // ctx.fillStyle = 'blue';
+            // ctx.fillRect(this.x, this.y, sizeX, sizeY);
+            ctx.drawImage(this.img,patternX[Math.floor(this.speedY * count/16)%4],0,32,32,this.x, this.y, sizeX, sizeY);
         }
-        if (this.inCrash) {
+        if (this.isCrash) {
             ctx.fillStyle = `rgb(${255*(this.wait/10)},0,0)`;
-            ctx.fillRect(this.x, this.y, size, size);
+            ctx.fillRect(this.x, this.y, sizeX, sizeY);
+            ctx.drawImage(this.img,patternX[Math.floor(this.speedY * count/16)%4],0,32,32,this.x, this.y, sizeX, sizeY);
         }
     },
 
     //移動処理
     move: function () {
-//        console.log(this.wait,this.enable,this.inCrash);
+//        console.log(this.wait,this.isEnable,this.isCrash);
 
-        if (this.enable) {
+        if (this.isEnable) {
             this.y += this.speedY;
-            if (this.y < 0 || this.y >= 600) {
-                this.enable = false;
+            if (this.y < 0 || this.y >= maxY) {
+                this.isEnable = false;
                 this.wait = 40;
                 myDot.crash();
             }
         }
-        if (this.inCrash) {
+        if (this.isCrash) {
             this.y += this.speedY;
             if (this.wait >0 ){
                 this.wait --;
             } else {
-                this.inCrash = false;
+                this.isCrash = false;
                 this.wait = 40;
             }
         }
@@ -347,8 +360,8 @@ var eDot = {
     //撃墜処理
     crash: function () {
         audioCrash.play();
-        this.inCrash = true;
-        this.enable = false;
+        this.isCrash = true;
+        this.isEnable = false;
         level++;
         this.wait = 10;
     }
@@ -360,43 +373,44 @@ var bDot = {
     x: 0,
     y: 0,
     wait :10,
-    enable: false,
+    isEnable: false,
+    img : null,
 
     //クリア処理
     clear: function() {
-        this.enable = false;
+        this.isEnable = false;
         this.wait = 10;
     },
 
     //出現処理
     create: function () {
-        if (!this.enable) {
+        if (!this.isEnable) {
             if (this.wait >0 ){
                 this.wait --;
             } else {
-                this.enable = true;
+                this.isEnable = true;
                 this.y = 0;
-                this.x = parseInt(Math.random() * (600 / size)) * size;
+                this.x = parseInt(Math.random() * (maxX / sizeX)) * sizeX;
             }
         }
     },
 
     //表示処理
     display: function () {
-        if (this.enable) {
+        if (this.isEnable) {
             var color = 63;
             ctx.fillStyle = `rgb(${color},${color},${color})`;
-            ctx.fillRect(this.x, this.y, size, size);
+            ctx.fillRect(this.x, this.y, sizeX, sizeY);
         }
     },
 
     //移動処理
     move: function () {
 
-        if (this.enable) {
+        if (this.isEnable) {
             this.y += speed;
-            if (this.y < 0 || this.y >= 600) {
-                this.enable = false;
+            if (this.y < 0 || this.y >= maxY) {
+                this.isEnable = false;
                 this.wait = 10;
             }
         }
@@ -412,14 +426,9 @@ function intervalGame() {
     //    var ctx = canvas.getContext('2d');
 
     //canvasのクリア
-    ctx.clearRect(0, 0, 600, 600);
+    ctx.clearRect(0, 0, maxX, maxY);
 
-
-//    ctx.globalCompositeOperation = "source-over";
-//    ctx.fillStyle = "rgba(0,0,0,.2)";
-//    ctx.fillRect(0, 0, 600, 600);
-//    ctx.globalCompositeOperation = "source-out";
-
+    count ++;
 
     // スコア表示
     ctx.fillStyle = 'gray';
@@ -428,25 +437,24 @@ function intervalGame() {
 
     //イントロモードの処理
     if (mode === 'intro') {
-        count ++;
         speed = parseInt(count / 10);
         if (count > 200) {
             mode = 'game';
         } else {
 
             if (count < 150) {
-                ctx.fillText(`Invaders come here.`, 300-19*6, 300);  
+                ctx.fillText(`Invaders come here.`, maxX/2-19*6, maxY/2);  
             } else {
-                ctx.fillText(`Good Luck♡`, 300-10*6, 300);  
+                ctx.fillText(`Good Luck♡`, maxX/2-10*6, maxY/2);  
             }
 
             myDot.move();
             sDot.move();
 
-            bDot.create();
-            bDot.move();
+            // bDot.create();
+            // bDot.move();
 
-            bDot.display();
+            // bDot.display();
             sDot.display();
             myDot.display();
         }
@@ -460,17 +468,17 @@ function intervalGame() {
         eDot.create();
         eDot.move();
 
-        bDot.create();
-        bDot.move();
+        // bDot.create();
+        // bDot.move();
 
         //命中判定
-        if ((sDot.enable && eDot.enable) &&
-        (Math.abs(eDot.x - sDot.x) < size && Math.abs(eDot.y - sDot.y) < size + level)) {
+        if ((sDot.isEnable && eDot.isEnable) &&
+        (Math.abs(eDot.x - sDot.x) < sizeX && Math.abs(eDot.y - sDot.y) < sizeY + level)) {
             sDot.clear();
             eDot.crash();
         }
 
-        bDot.display();
+        // bDot.display();
         myDot.display();
         sDot.display();
         eDot.display();
@@ -480,10 +488,10 @@ function intervalGame() {
     if (mode === 'crash') {
         myDot.move();
 
-        bDot.create();
-        bDot.move();
+        // bDot.create();
+        // bDot.move();
 
-        bDot.display();
+        // bDot.display();
         myDot.display();
     }
 
@@ -521,11 +529,28 @@ function intervalGameOver() {
     }
     if (degree > 360*2) {
         lastLevel = level;
+        if (lastLevel > yourLevel) {
+            yourLevel = lastLevel;
+            localStorage.setItem('yourLevel',yourLevel);
+        }
         clearContent();
         setTitle();
     }
 }
 
 //初回はタイトルを表示する。
-setTitle();
+eDot.img = new Image();
+eDot.img.src = './hone.png';
+eDot.img.onload = () => {
+    myDot.img = new Image();
+    myDot.img.src = './majo.png';
+    myDot.img.onload = () => {
+        sDot.img = new Image();
+        sDot.img.src = './koumori.png';
+        sDot.img.onload = () => {
+            setTitle();
+        };
+    };
+};
+
 
