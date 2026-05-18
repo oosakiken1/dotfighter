@@ -6,9 +6,10 @@ const audioCrash = document.getElementById('audio-crash');
 audioShoot.volume = 0.05;
 audioCrash.volume = 0.05;
 
-// const audioMiss = document.getElementById('audio-miss');
-// const audioGameOver = document.getElementById('audio-gameover');
-// const audioGameStart = document.getElementById('audio-gamestart');
+const audioMiss = document.getElementById('audio-miss');
+const audioGameOver = document.getElementById('audio-gameover');
+const audioGameStart01 = document.getElementById('audio-gamestart01');
+const audioGameStart02 = document.getElementById('audio-gamestart02');
 
 let ped;        // press enter div
 let si;         // setInterval
@@ -18,6 +19,7 @@ const sizeY = 32;  // dotのサイズ      px     default 10
 const maxX = 640;
 const maxY = 640;
 const patternX = [32,0,32,64];
+const patternY = [96,32,0,64];
 let gameSpeed = 20; // ゲームスピード   nano秒  default 20
 let mode;       // 画面のモード
 let ctx;        // canvas.getContext
@@ -29,7 +31,7 @@ let reserve;    // 残機
 let level;      // レベル
 let speed;      // 背景速度
 let count;      // 汎用カウンタ
-let lastLevel = 0;　//最後のLevel
+let lastLevel = 0; //最後のLevel
 let yourLevel = localStorage.getItem('yourLevel') || 0;
 
 /**
@@ -64,6 +66,8 @@ document.body.addEventListener('keydown',
             keyLeft = true;
         } else if (event.key === "z" || event.key === " ") {
             keyZ = true;
+        } else if (event.key === 's') {
+            level ++;
         }
     }
 );
@@ -115,10 +119,10 @@ function setTitle() {
     script.setAttribute('src','https://platform.twitter.com/widgets.js');
 
     //childの削除
-    removeAllChild(td);
+    // removeAllChild(td);
 
-    td.appendChild(anchor);
-    td.appendChild(script);
+    // td.appendChild(anchor);
+    // td.appendChild(script);
 
     //interval処理の設定
     ped = document.getElementById('press-enter');
@@ -134,7 +138,7 @@ function intervalTitle() {
     if (keyEnter) {
         clearContent();
         setGame();
-        // audioGameStart.play();
+        audioGameStart01.play();
     }
 }
 
@@ -186,9 +190,14 @@ var myDot = {
     display: function () {
         if (this.isCrash){
             ctx.fillStyle = `rgb(${255*(this.wait/200)},0,0)`;
-            ctx.fillRect(this.x, this.y, sizeX, sizeY);
+            ctx.fillRect(this.x, this.y - Math.floor((200-this.wait))*4, sizeX, sizeY);
+            ctx.drawImage(this.img,patternX[0],patternY[Math.floor((200-this.wait)/4)%4],32,32,this.x, this.y - Math.floor((200-this.wait))*4, sizeX, sizeY);
+        } else if (mode === 'intro'){
+            ctx.drawImage(this.img,patternX[Math.floor(count/16)%4],96,32,32,this.x, this.y + Math.max(100 - count/2,0), sizeX, sizeY);
         }
-        ctx.drawImage(this.img,patternX[Math.floor(count/16)%4],96,32,32,this.x, this.y, sizeX, sizeY);
+        else {
+            ctx.drawImage(this.img,patternX[Math.floor(count/16)%4],96,32,32,this.x, this.y, sizeX, sizeY);
+        }
     },
 
     //操作処理
@@ -227,10 +236,10 @@ var myDot = {
             this.isCrash = true;
             this.wait = 200;
             mode = "crash";
-            // audioGameOver.play();
+            audioGameOver.play();
 
         } else {
-            // audioMiss.play();
+            audioMiss.play();
         }
 
     }
@@ -330,7 +339,7 @@ var eDot = {
         if (this.isCrash) {
             ctx.fillStyle = `rgb(${255*(this.wait/10)},0,0)`;
             ctx.fillRect(this.x, this.y, sizeX, sizeY);
-            ctx.drawImage(this.img,patternX[Math.floor(this.speedY * count/16)%4],0,32,32,this.x, this.y, sizeX, sizeY);
+            ctx.drawImage(this.img,patternX[Math.floor(this.speedY * count/16)%4],patternY[Math.floor((40-this.wait)/4+3)%4],32,32,this.x, this.y, sizeX, sizeY);
         }
     },
 
@@ -347,6 +356,7 @@ var eDot = {
             }
         }
         if (this.isCrash) {
+            this.speedY =  this.speedY * 0.9;
             this.y += this.speedY;
             if (this.wait >0 ){
                 this.wait --;
@@ -363,7 +373,7 @@ var eDot = {
         this.isCrash = true;
         this.isEnable = false;
         level++;
-        this.wait = 10;
+        this.wait = 20;
     }
 }
 /**
@@ -442,10 +452,13 @@ function intervalGame() {
             mode = 'game';
         } else {
 
-            if (count < 150) {
+            if (count > 150) {
+                audioGameStart02.play();
+                ctx.fillText(`Good Luck♡`, maxX/2-10*6, maxY/2);  
+            } else if (count > 100) {
+                audioGameStart02.play();
                 ctx.fillText(`Invaders come here.`, maxX/2-19*6, maxY/2);  
             } else {
-                ctx.fillText(`Good Luck♡`, maxX/2-10*6, maxY/2);  
             }
 
             myDot.move();
@@ -490,6 +503,7 @@ function intervalGame() {
 
         // bDot.create();
         // bDot.move();
+
 
         // bDot.display();
         myDot.display();
